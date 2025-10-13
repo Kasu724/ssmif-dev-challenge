@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.pyc
+env/
+venv/
+.venv/
+
+# VSCode
+.vscode/
+
+# Node
+node_modules/
+
+# DB
+*.db
+
+# Logs
+*.log
+
+# OS
+Thumbs.db
+desktop.ini
