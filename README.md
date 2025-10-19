@@ -42,6 +42,7 @@ The Trading Strategy Backtester uses a FastAPI backend and a Next.js frontend.
 ### 0. Ensure Python Installation
 Install [Python 3.11.6](https://www.python.org/downloads/release/python-3116)
 Install [Git](https://git-scm.com/downloads)
+Install [Node.js](https://nodejs.org/en/download)
 
 ### 1. Clone Repository
 Open a terminal and run:
@@ -117,6 +118,7 @@ The app currently supports three trading strategies
 
 ## Credits
 Developed by Kevin Lui for the Stevens Student Managed Investment Fund (SSMIF) Development Challenge.
+
 
 
 
