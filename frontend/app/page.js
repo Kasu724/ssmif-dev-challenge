@@ -170,7 +170,7 @@ export default function Home() {
                     <p>
                       <strong>Moving Average Crossover:</strong> Buys when a short-term
                       moving average crosses above a long-term moving average
-                      (“Golden Cross”) and sells when it crosses below (“Death Cross”).
+                      ("Golden Cross") and sells when it crosses below ("Death Cross").
                     </p>
                     <ul className="list-disc ml-5 mt-2 space-y-1">
                       <li>
@@ -189,8 +189,8 @@ export default function Home() {
                   <div className="text-sm text-gray-700 leading-snug space-y-2">
                     <p>
                       <strong> Relative Strength Index (RSI) Mean Reversion:</strong> Buys when the RSI falls below a
-                      “oversold” level (e.g., 30) and sells when RSI rises above an
-                      “overbought” level (e.g., 70).
+                      "oversold" level (e.g., 30) and sells when RSI rises above an
+                      "overbought" level (e.g., 70).
                     </p>
                     <ul className="list-disc ml-5 mt-2 space-y-1">
                       <li>
