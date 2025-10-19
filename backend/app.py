@@ -138,7 +138,16 @@ def backtest(
     db.close()
 
     if not prices:
-        raise HTTPException(status_code=404, detail=f"No data available for {symbol} in selected range.")
+        # Fetch missing data automatically
+        fetch_and_store(symbol, start, end, db_session=db)
+        prices = (
+            db.query(Price)
+            .filter(Price.symbol == symbol, Price.date >= start, Price.date <= end)
+            .order_by(Price.date.asc())
+            .all()
+        )
+        if not prices:
+            raise HTTPException(status_code=404, detail=f"No data available for {symbol} in selected range, even after fetching.")
 
     # Convert to DataFrame
     df = pd.DataFrame(
