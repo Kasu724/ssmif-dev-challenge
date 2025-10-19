@@ -11,7 +11,7 @@ from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 from datetime import datetime, date
 
-from backend.database import SessionLocal, Price
+from backend.database import SessionLocal, Price, Base, engine
 from backend.ingest_utils import fetch_and_store
 from backend.strategies import (
     threshold_cross_strategy,
@@ -23,6 +23,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 # FastAPI Setup
 app = FastAPI(title="SSMIF Dev Challenge - Backend")
+
+Base.metadata.create_all(bind=engine)
 
 app.add_middleware(
     CORSMiddleware,
