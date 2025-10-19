@@ -124,13 +124,13 @@ export default function Home() {
         {/* LEFT PANEL */}
         <div
           ref={leftPanelRef}
-          className="flex flex-col justify-center bg-white p-8 rounded-l-2xl shadow-md flex-shrink-0 h-full"
+          className="flex flex-col bg-white p-8 rounded-l-2xl shadow-md flex-shrink-0 h-full overflow-y-auto"
           style={{ flexBasis: "35%" }}
         >
-          <div className="flex flex-col justify-center space-y-10">
+          <div className="flex flex-col space-y-7">
             {/* STRATEGY DROPDOWN */}
             <div>
-              <label className="block mb-5 text-xl font-semibold text-gray-800">
+              <label className="block mb-3 text-xl font-semibold text-gray-800">
                 Select Strategy
               </label>
 
@@ -213,7 +213,7 @@ export default function Home() {
 
             {/* PARAMETERS */}
             <div>
-              <h2 className="text-xl font-semibold text-gray-800 mb-5">
+              <h2 className="text-xl font-semibold text-gray-800 mb-3">
                 Parameters
               </h2>
 
