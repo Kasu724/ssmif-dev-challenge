@@ -39,6 +39,9 @@ The Trading Strategy Backtester uses a FastAPI backend and a Next.js frontend.
 
 ## Setup Instructions
 
+### 0. Ensure Python Installation
+Install [Python 3.11.6](https://www.python.org/downloads/release/python-3116)
+
 ### 1. Clone Repository
 Open a terminal and run:
 ```bash
@@ -49,12 +52,14 @@ cd ssmif-dev-challenge
 Activate Virtual Environment
 ```bash
 '''Activate Virtual Environment'''
-cd backend
-python -m venv venv
-venv\Scripts\activate       # Windows
-source venv/bin/activate    # Mac/Linux
+py -3.11 -m venv .venv
+.venv\Scripts\activate       # Windows
+source .venv/bin/activate     # Mac/Linux
+# Ensure correct Python Interpreter is being used
+# Path should be ..\ssmif-dev-challenge\.venv\Scripts\python.exe
 
 '''Install Dependencies'''
+cd backend
 pip install -r requirements.txt
 
 '''Run FastAPI Server'''
@@ -111,6 +116,7 @@ The app currently supports three trading strategies
 
 ## Credits
 Developed by Kevin Lui for the Stevens Student Managed Investment Fund (SSMIF) Development Challenge.
+
 
 
 
