@@ -13,14 +13,24 @@ import {
 } from "recharts";
 
 export default function Home() {
+  // Shared states
+  const [strategy, setStrategy] = useState("threshold_cross");
   const [symbol, setSymbol] = useState("");
-  const [threshold, setThreshold] = useState("");
-  const [holdingPeriod, setHoldingPeriod] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  // Strategy-specific params
+  const [threshold, setThreshold] = useState("");
+  const [holdingPeriod, setHoldingPeriod] = useState("");
+  const [shortWindow, setShortWindow] = useState("");
+  const [longWindow, setLongWindow] = useState("");
+  const [rsiWindow, setRsiWindow] = useState("");
+  const [buyThreshold, setBuyThreshold] = useState("");
+  const [sellThreshold, setSellThreshold] = useState("");
+
+  // Refs for resizing panels
   const leftPanelRef = useRef(null);
   const containerRef = useRef(null);
   const isDragging = useRef(false);
@@ -28,7 +38,7 @@ export default function Home() {
   const handleMouseDown = (e) => {
     e.preventDefault();
     isDragging.current = true;
-    document.body.style.userSelect = "none"; // disable text selection
+    document.body.style.userSelect = "none";
 
     const container = containerRef.current;
     const leftPanel = leftPanelRef.current;
@@ -46,27 +56,52 @@ export default function Home() {
       isDragging.current = false;
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
-      document.body.style.userSelect = ""; // reset
+      document.body.style.userSelect = "";
     };
 
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseup", handleMouseUp);
   };
 
+  // Handle running a backtest
   const handleRun = async () => {
-    if (!symbol || !threshold || !holdingPeriod || !startDate || !endDate) {
-      alert("Please fill out all fields before running the backtest.");
+    if (!symbol || !startDate || !endDate) {
+      alert("Please fill out all required fields.");
       return;
     }
+
     setLoading(true);
     try {
-      const data = await fetchBacktest(
-        symbol,
-        Number(threshold),
-        Number(holdingPeriod),
-        startDate,
-        endDate
-      );
+      const params = { strategy, start_date: startDate, end_date: endDate };
+
+      if (strategy === "threshold_cross") {
+        if (!threshold || !holdingPeriod) {
+          alert("Please fill out Threshold Cross parameters.");
+          setLoading(false);
+          return;
+        }
+        Object.assign(params, { threshold, holding_period: holdingPeriod });
+      } else if (strategy === "moving_average") {
+        if (!shortWindow || !longWindow) {
+          alert("Please fill out both moving average windows.");
+          setLoading(false);
+          return;
+        }
+        Object.assign(params, { short_window: shortWindow, long_window: longWindow });
+      } else if (strategy === "rsi_mean_reversion") {
+        if (!rsiWindow || !buyThreshold || !sellThreshold) {
+          alert("Please fill out all RSI parameters.");
+          setLoading(false);
+          return;
+        }
+        Object.assign(params, {
+          rsi_window: rsiWindow,
+          buy_threshold: buyThreshold,
+          sell_threshold: sellThreshold,
+        });
+      }
+
+      const data = await fetchBacktest(symbol, params);
       setResult(data);
     } catch (err) {
       console.error(err);
@@ -81,7 +116,7 @@ export default function Home() {
         SSMIF Backtester
       </h1>
 
-      {/* MAIN LAYOUT CONTAINER */}
+      {/* MAIN CONTAINER */}
       <div
         ref={containerRef}
         className="flex w-full max-w-8xl mx-auto h-[85vh] bg-gray-50 rounded-xl shadow-inner overflow-hidden"
@@ -93,19 +128,87 @@ export default function Home() {
           style={{ flexBasis: "35%" }}
         >
           <div className="flex flex-col justify-center space-y-10">
-            {/* STRATEGY SELECTION */}
+            {/* STRATEGY DROPDOWN */}
             <div>
               <label className="block mb-5 text-xl font-semibold text-gray-800">
                 Select Strategy
               </label>
+
               <select
+                value={strategy}
+                onChange={(e) => setStrategy(e.target.value)}
                 className="border border-gray-300 rounded p-2 w-full text-gray-800 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                defaultValue="threshold"
               >
-                <option value="threshold">Threshold Cross</option>
-                <option disabled>Moving Average (coming soon)</option>
-                <option disabled>RSI Strategy (coming soon)</option>
+                <option value="threshold_cross">Threshold Cross</option>
+                <option value="moving_average">Moving Average Crossover</option>
+                <option value="rsi_mean_reversion">RSI Mean Reversion</option>
               </select>
+
+              {/* STRATEGY DESCRIPTION */}
+              <div className="mt-3 bg-gray-100 border border-gray-200 rounded-md p-3 shadow-inner">
+                {strategy === "threshold_cross" && (
+                  <div className="text-sm text-gray-700 leading-snug space-y-2">
+                    <p>
+                      <strong>Threshold Cross:</strong> Buys when the price exceeds a fixed
+                      threshold and holds the position for a set number of days.
+                    </p>
+                    <ul className="list-disc ml-5 mt-2 space-y-1">
+                      <li>
+                        <strong>Threshold:</strong> The price level that triggers a buy
+                        signal (e.g., 180).
+                      </li>
+                      <li>
+                        <strong>Hold Days:</strong> How long to hold the position before
+                        selling (e.g., 5).
+                      </li>
+                    </ul>
+                  </div>
+                )}
+
+                {strategy === "moving_average" && (
+                  <div className="text-sm text-gray-700 leading-snug space-y-2">
+                    <p>
+                      <strong>Moving Average Crossover:</strong> Buys when a short-term
+                      moving average crosses above a long-term moving average
+                      (“Golden Cross”) and sells when it crosses below (“Death Cross”).
+                    </p>
+                    <ul className="list-disc ml-5 mt-2 space-y-1">
+                      <li>
+                        <strong>Short MA:</strong> Number of days for the short-term moving
+                        average (e.g., 20).
+                      </li>
+                      <li>
+                        <strong>Long MA:</strong> Number of days for the long-term moving
+                        average (e.g., 50).
+                      </li>
+                    </ul>
+                  </div>
+                )}
+
+                {strategy === "rsi_mean_reversion" && (
+                  <div className="text-sm text-gray-700 leading-snug space-y-2">
+                    <p>
+                      <strong> Relative Strength Index (RSI) Mean Reversion:</strong> Buys when the RSI falls below a
+                      “oversold” level (e.g., 30) and sells when RSI rises above an
+                      “overbought” level (e.g., 70).
+                    </p>
+                    <ul className="list-disc ml-5 mt-2 space-y-1">
+                      <li>
+                        <strong>RSI Window:</strong> The number of periods used to compute
+                        RSI (commonly 14).
+                      </li>
+                      <li>
+                        <strong>Buy Threshold:</strong> RSI level that triggers a buy
+                        (typically below 30).
+                      </li>
+                      <li>
+                        <strong>Sell Threshold:</strong> RSI level that triggers a sell
+                        (typically above 70).
+                      </li>
+                    </ul>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* PARAMETERS */}
@@ -114,59 +217,145 @@ export default function Home() {
                 Parameters
               </h2>
 
-              <div className="space-y-5">
-                <div className="flex justify-between items-center gap-3">
-                  <span className="w-32 font-medium text-gray-800">Symbol:</span>
-                  <input
-                    value={symbol}
-                    onChange={(e) => setSymbol(e.target.value.toUpperCase())}
-                    placeholder="e.g. AAPL"
-                    className="border border-gray-300 p-2 rounded flex-1 text-gray-800 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                  />
-                </div>
-
-                <div className="flex justify-between items-center gap-3">
-                  <span className="w-32 font-medium text-gray-800">Threshold:</span>
-                  <input
-                    type="number"
-                    value={threshold}
-                    onChange={(e) => setThreshold(e.target.value)}
-                    placeholder="e.g. 180"
-                    className="border border-gray-300 p-2 rounded flex-1 text-gray-800 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                  />
-                </div>
-
-                <div className="flex justify-between items-center gap-3">
-                  <span className="w-32 font-medium text-gray-800">Hold Days:</span>
-                  <input
-                    type="number"
-                    value={holdingPeriod}
-                    onChange={(e) => setHoldingPeriod(e.target.value)}
-                    placeholder="e.g. 5"
-                    className="border border-gray-300 p-2 rounded flex-1 text-gray-800 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                  />
-                </div>
-
-                <div className="flex justify-between items-center gap-3">
-                  <span className="w-32 font-medium text-gray-800">Date Range:</span>
-                  <div className="flex gap-2 flex-1 items-center">
+              {strategy === "threshold_cross" && (
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center gap-3">
+                    <span className="w-32 font-medium text-gray-800">Symbol:</span>
                     <input
-                      type="date"
-                      value={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
-                      className="border border-gray-300 p-2 rounded w-full focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                      style={{ color: startDate ? "#111827" : "#9ca3af" }}
+                      value={symbol}
+                      onChange={(e) => setSymbol(e.target.value.toUpperCase())}
+                      placeholder="e.g. AAPL"
+                      className="border border-gray-300 p-2 rounded flex-1 focus:ring-2 focus:ring-blue-400 focus:outline-none"
                     />
-                    <span className="text-gray-800">–</span>
+                  </div>
+
+                  <div className="flex justify-between items-center gap-3">
+                    <span className="w-32 font-medium text-gray-800">Threshold:</span>
                     <input
-                      type="date"
-                      value={endDate}
-                      onChange={(e) => setEndDate(e.target.value)}
-                      className="border border-gray-300 p-2 rounded w-full focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                      style={{ color: endDate ? "#111827" : "#9ca3af" }}
+                      type="number"
+                      value={threshold}
+                      onChange={(e) => setThreshold(e.target.value)}
+                      placeholder="e.g. 180"
+                      className="border border-gray-300 p-2 rounded flex-1 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="flex justify-between items-center gap-3">
+                    <span className="w-32 font-medium text-gray-800">Hold Days:</span>
+                    <input
+                      type="number"
+                      value={holdingPeriod}
+                      onChange={(e) => setHoldingPeriod(e.target.value)}
+                      placeholder="e.g. 5"
+                      className="border border-gray-300 p-2 rounded flex-1 focus:ring-2 focus:ring-blue-400 focus:outline-none"
                     />
                   </div>
                 </div>
+              )}
+
+              {strategy === "moving_average" && (
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center gap-3">
+                    <span className="w-32 font-medium text-gray-800">Symbol:</span>
+                    <input
+                      value={symbol}
+                      onChange={(e) => setSymbol(e.target.value.toUpperCase())}
+                      placeholder="e.g. AAPL"
+                      className="border border-gray-300 p-2 rounded flex-1 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="flex justify-between items-center gap-3">
+                    <span className="w-32 font-medium text-gray-800">Short MA:</span>
+                    <input
+                      type="number"
+                      value={shortWindow}
+                      onChange={(e) => setShortWindow(e.target.value)}
+                      placeholder="e.g. 20"
+                      className="border border-gray-300 p-2 rounded flex-1 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="flex justify-between items-center gap-3">
+                    <span className="w-32 font-medium text-gray-800">Long MA:</span>
+                    <input
+                      type="number"
+                      value={longWindow}
+                      onChange={(e) => setLongWindow(e.target.value)}
+                      placeholder="e.g. 50"
+                      className="border border-gray-300 p-2 rounded flex-1 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {strategy === "rsi_mean_reversion" && (
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center gap-3">
+                    <span className="w-32 font-medium text-gray-800">Symbol:</span>
+                    <input
+                      value={symbol}
+                      onChange={(e) => setSymbol(e.target.value.toUpperCase())}
+                      placeholder="e.g. AAPL"
+                      className="border border-gray-300 p-2 rounded flex-1 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="flex justify-between items-center gap-3">
+                    <span className="w-32 font-medium text-gray-800">RSI Window:</span>
+                    <input
+                      type="number"
+                      value={rsiWindow}
+                      onChange={(e) => setRsiWindow(e.target.value)}
+                      placeholder="e.g. 14"
+                      className="border border-gray-300 p-2 rounded flex-1 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="flex justify-between items-center gap-3">
+                    <span className="w-32 font-medium text-gray-800">Buy Threshold:</span>
+                    <input
+                      type="number"
+                      value={buyThreshold}
+                      onChange={(e) => setBuyThreshold(e.target.value)}
+                      placeholder="e.g. 30"
+                      className="border border-gray-300 p-2 rounded flex-1 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="flex justify-between items-center gap-3">
+                    <span className="w-32 font-medium text-gray-800">Sell Threshold:</span>
+                    <input
+                      type="number"
+                      value={sellThreshold}
+                      onChange={(e) => setSellThreshold(e.target.value)}
+                      placeholder="e.g. 70"
+                      className="border border-gray-300 p-2 rounded flex-1 focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* DATE RANGE */}
+            <div className="flex justify-between items-center gap-3">
+              <span className="w-32 font-medium text-gray-800">Date Range:</span>
+              <div className="flex gap-2 flex-1 items-center">
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="border border-gray-300 p-2 rounded w-full focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                  style={{ color: startDate ? "#111827" : "#9ca3af" }}
+                />
+                <span className="text-gray-800">–</span>
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="border border-gray-300 p-2 rounded w-full focus:ring-2 focus:ring-blue-400 focus:outline-none"
+                  style={{ color: endDate ? "#111827" : "#9ca3af" }}
+                />
               </div>
             </div>
 
@@ -259,21 +448,110 @@ export default function Home() {
 
               {/* OTHER STATISTICS */}
               <div className="mt-8 flex justify-center flex-shrink-0">
-                <div className="bg-gray-100 rounded-lg p-6 shadow-inner text-center border border-gray-200 w-[450px]">
+                <div className="bg-gray-100 rounded-lg p-6 shadow-inner text-center border border-gray-200 w-2xl">
                   <h3 className="text-2xl font-semibold text-gray-800 mb-4">
                     Performance Summary
                   </h3>
+
                   {result.performance_summary ? (
-                    <ul className="grid grid-cols-2 gap-x-12 gap-y-2 text-gray-700">
-                      {Object.entries(result.performance_summary).map(([key, value]) => (
-                        <li key={key} className="flex justify-between text-m">
-                          <span>{key}</span>
-                          <span className="font-medium text-gray-900">{value}</span>
-                        </li>
-                      ))}
+                    <ul className="grid grid-cols-2 gap-x-12 gap-y-2 text-gray-700 mb-6">
+                      {Object.entries(result.performance_summary).map(([key, value]) => {
+                        const tooltips = {
+                          "Total PnL": [
+                            "Total profit or loss over the entire backtest period",
+                            "Sum of all individual trade PnLs",
+                          ],
+                          "Annualized Return": [
+                            "Compound annual growth rate based on total portfolio value.",
+                            "Formula: ((Final / Initial) ^ (252 / N)) − 1",
+                          ],
+                          "Max Drawdown": [
+                            "Largest drop from a peak to a trough in cumulative PnL",
+                            "Maximum risk exposure or loss from the highest point",
+                          ],
+                          "Win Probability": [
+                            "Percentage of profitable trades",
+                            "(Winning Trades / Total Trades) × 100%",
+                          ],
+                        };
+
+                        const tooltip = tooltips[key] || ["No description available."];
+
+                        return (
+                          <li key={key} className="flex justify-between text-m relative group">
+                            {/* Tooltip trigger */}
+                            <span className="font-medium text-gray-800 cursor-help relative">
+                              {key}
+
+                              {/* Tooltip bubble */}
+                              <div className="absolute z-10 hidden group-hover:block w-50 bg-gray-800 text-gray-100 text-xs rounded-md p-2 left-1/2 -translate-x-1/2 bottom-full mb-2 shadow-lg whitespace-pre-line">
+                                {tooltip.map((line, i) => (
+                                  <p key={i} className="text-gray-100 leading-snug">
+                                    {line}
+                                  </p>
+                                ))}
+
+                                {/* Tooltip arrow */}
+                                <div className="absolute left-1/2 top-full -translate-x-1/2 w-2 h-2 bg-gray-800 rotate-45"></div>
+                              </div>
+                            </span>
+
+                            {/* Value */}
+                            <span className="font-semibold text-gray-900">{value}</span>
+                          </li>
+                        );
+                      })}
                     </ul>
                   ) : (
-                    <p className="text-gray-400 italic">No statistics yet.</p>
+                    <p className="text-gray-400 italic mb-6">No statistics yet.</p>
+                  )}
+
+                  {/* TRADE LOG */}
+                  {result.trades && result.trades.length > 0 ? (
+                    <>
+                      <h4 className="text-2xl font-semibold text-gray-800 mb-4">
+                        Trade History
+                      </h4>
+                      <div className="max-h-64 overflow-y-auto border border-gray-300 rounded-lg">
+                        <table className="min-w-full text-sm text-gray-700">
+                          <thead className="bg-gray-200 sticky top-0">
+                            <tr>
+                              <th className="py-2 px-3">Entry Date</th>
+                              <th className="py-2 px-3">Exit Date</th>
+                              <th className="py-2 px-3">Entry Price</th>
+                              <th className="py-2 px-3">Exit Price</th>
+                              <th className="py-2 px-3">PnL ($)</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {result.trades.map((trade, index) => (
+                              <tr
+                                key={index}
+                                className="even:bg-gray-50 hover:bg-gray-100 transition"
+                              >
+                                <td className="py-2 px-3">{trade.entry_date}</td>
+                                <td className="py-2 px-3">{trade.exit_date}</td>
+                                <td className="py-2 px-3">
+                                  {trade.entry_price.toFixed(2)}
+                                </td>
+                                <td className="py-2 px-3">
+                                  {trade.exit_price.toFixed(2)}
+                                </td>
+                                <td
+                                  className={`py-2 px-3 font-semibold ${
+                                    trade.pnl >= 0 ? "text-green-600" : "text-red-600"
+                                  }`}
+                                >
+                                  {trade.pnl.toFixed(2)}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </>
+                  ) : (
+                    <p className="text-gray-400 italic">No trades executed.</p>
                   )}
                 </div>
               </div>
