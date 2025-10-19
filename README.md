@@ -67,7 +67,7 @@ The FastAPI Server runs on http://127.0.0.1:8000 by default
 ### 3. Setup Frontend
 Open a second terminal and run:
 ```bash
-cd ssmif-backtester
+cd ssmif-dev-challenge
 cd frontend
 npm install
 npm run dev
@@ -111,5 +111,6 @@ The app currently supports three trading strategies
 
 ## Credits
 Developed by Kevin Lui for the Stevens Student Managed Investment Fund (SSMIF) Development Challenge.
+
 
 
