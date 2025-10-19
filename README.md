@@ -108,13 +108,19 @@ The app currently supports three trading strategies
     - Sell Threshold: RSI level that triggers a sell (typically above 70).
 
 ## Performance Statistics
-
 | Metric | Description | Formula / Explanation |
 |-------|-------|-------|
 | Total PnL | The total profit or loss (in dollars) from all closed trades. | Sum of all individual trade PnLs. |
 | Annualized Return (CAGR) | Compound annual growth rate assuming continuous compounding. | `((Final / Initial) ^ (252 / N)) - 1` |
 | Max Drawdown | The largest peak-to-trough decline in the equity curve, expressed as a percentage. | `(Equity - Peak) / Peak` |
 | Win Probability | The percentage of profitable trades. | `(Winning Trades / Total Trades) × 100%` |
+
+## Running the Standalone Ingester Script
+The there is also a standalone data ingestion script that fetches and stores price data from Yahoo Finance via `yfinance`.
+This populates the local database (`db/dev.db`) with OHLCV data before running any backtests.
+- Fetches daily Open, High, Low, Close, Volume data for a given stock symbol
+- Saves it to the database under the `prices` table
+
 
 ## Credits
 Developed by Kevin Lui for the Stevens Student Managed Investment Fund (SSMIF) Development Challenge.

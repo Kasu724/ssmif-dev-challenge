@@ -18,7 +18,7 @@ from backend.strategies import (
     moving_average_crossover_strategy,
     rsi_mean_reversion_strategy,
 )
-from backend.backtest import run_backtest
+from backend.backtest import ensure_data_available
 from fastapi.middleware.cors import CORSMiddleware
 
 # FastAPI Setup
@@ -131,24 +131,19 @@ def backtest(
     """
     start = date.fromisoformat(start_date)
     end = date.fromisoformat(end_date)
+    ensure_data_available(symbol, start, end)
 
     # Load price data
     db = SessionLocal()
-    prices = db.query(Price).filter(Price.symbol == symbol, Price.date >= start, Price.date <= end).all()
+    prices = (
+        db.query(Price)
+        .filter(Price.symbol == symbol, Price.date >= start, Price.date <= end)
+        .order_by(Price.date.asc())
+        .all()
+    )
     db.close()
-
     if not prices:
-        # Fetch missing data automatically
-        fetch_and_store(symbol, start, end, db_session=db)
-        prices = (
-            db.query(Price)
-            .filter(Price.symbol == symbol, Price.date >= start, Price.date <= end)
-            .order_by(Price.date.asc())
-            .all()
-        )
-        if not prices:
-            raise HTTPException(status_code=404, detail=f"No data available for {symbol} in selected range, even after fetching.")
-
+        raise HTTPException(status_code=404, detail=f"No data available for {symbol} in {start} → {end}.")
     # Convert to DataFrame
     df = pd.DataFrame(
         [{"date": p.date, "close": p.close, "open": p.open, "high": p.high, "low": p.low, "volume": p.volume} for p in prices]
