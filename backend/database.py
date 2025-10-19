@@ -5,8 +5,11 @@ import os
 from sqlalchemy import create_engine, Column, Integer, String, Float, Date
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))       # /path/to/backend
-DB_PATH = os.path.join(BASE_DIR, "..", "db", "dev.db")      # /path/to/db/dev.db
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_DIR = os.path.join(BASE_DIR, "..", "db")
+os.makedirs(DB_DIR, exist_ok=True)
+
+DB_PATH = os.path.join(DB_DIR, "dev.db")
 SQLALCHEMY_DATABASE_URL = f"sqlite:///{os.path.abspath(DB_PATH)}"
 
 engine = create_engine(
