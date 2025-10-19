@@ -43,7 +43,7 @@ The Trading Strategy Backtester uses a FastAPI backend and a Next.js frontend.
 Open a terminal and run:
 ```bash
 git clone https://github.com/Kasu724/ssmif-dev-challenge.git
-cd ssmif-backtester
+cd ssmif-dev-challenge
 ```
 ### 2. Setup Backend
 Activate Virtual Environment
@@ -111,4 +111,5 @@ The app currently supports three trading strategies
 
 ## Credits
 Developed by Kevin Lui for the Stevens Student Managed Investment Fund (SSMIF) Development Challenge.
+
 
