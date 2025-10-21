@@ -136,16 +136,17 @@ This populates the local database (`db/dev.db`) with OHLCV data before running a
 
 ## 📸 App Preview
 <p align="center">
-  <img src="./images/preview1.png" alt="Threshold Crossover" width="50%">
-  <img src="./images/preview2.png" alt="Threshold Crossover Trade History" width="50%">
+  <img src="./images/preview1.png" alt="Threshold Crossover" width="45%">
+  <img src="./images/preview2.png" alt="Threshold Crossover Trade History" width="45%">
 </p>
 <p align="center">
-  <img src="./images/preview3.png" alt="Moving Average Crossover" width="50%">
-  <img src="./images/preview4.png" alt="RSI Mean Reversion" width="50%">
+  <img src="./images/preview3.png" alt="Moving Average Crossover" width="45%">
+  <img src="./images/preview4.png" alt="RSI Mean Reversion" width="45%">
 </p>
 
 ## Credits
 Developed by Kevin Lui for the Stevens Student Managed Investment Fund (SSMIF) Development Challenge.
+
 
 
 
