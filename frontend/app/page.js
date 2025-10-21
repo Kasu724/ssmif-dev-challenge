@@ -49,7 +49,7 @@ export default function Home() {
       if (!isDragging.current) return;
       const dx = eMove.clientX - startX;
       const newLeftWidth = ((startWidth + dx) / container.offsetWidth) * 100;
-      leftPanel.style.flexBasis = `${Math.min(Math.max(newLeftWidth, 20), 60)}%`;
+      leftPanel.style.flexBasis = `${Math.min(Math.max(newLeftWidth, 30), 70)}%`;
     };
 
     const handleMouseUp = () => {
