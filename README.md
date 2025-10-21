@@ -48,7 +48,7 @@ Install [Node.js](https://nodejs.org/en/download)
 Open a terminal and run:
 ```bash
 git clone https://github.com/Kasu724/ssmif-dev-challenge.git
-cd ssmif-dev-challenge
+cd ssmif-dev-challenge # or cd ssmif-dev-challenge-main
 ```
 ### 2. Setup Backend
 Activate Virtual Environment
@@ -74,7 +74,7 @@ The FastAPI Server runs on http://127.0.0.1:8000 by default
 ### 3. Setup Frontend
 Open a second terminal and run:
 ```bash
-cd ssmif-dev-challenge
+cd ssmif-dev-challenge # or cd ssmif-dev-challenge-main
 cd frontend
 npm install
 npm run dev
@@ -84,12 +84,12 @@ The app runs on http://localhost:3000 by default
 ### 4. To Run Again in the Future
 Open a terminal and run:
 ```bash
-cd ssmif-dev-challenge
+cd ssmif-dev-challenge # or cd ssmif-dev-challenge-main
 uvicorn backend.app:app --reload
 ```
 Open a second terminal and run:
 ```bash
-cd ssmif-dev-challenge
+cd ssmif-dev-challenge # or cd ssmif-dev-challenge-main
 cd frontend
 npm run dev
 ```
@@ -146,6 +146,7 @@ This populates the local database (`db/dev.db`) with OHLCV data before running a
 
 ## Credits
 Developed by Kevin Lui for the Stevens Student Managed Investment Fund (SSMIF) Development Challenge.
+
 
 
 
