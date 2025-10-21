@@ -81,6 +81,19 @@ npm run dev
 ```
 The app runs on http://localhost:3000 by default
 
+### 4. To Run Again in the Future
+Open a terminal and run:
+```bash
+cd ssmif-dev-challenge
+uvicorn backend.app:app --reload
+```
+Open a second terminal and run:
+```bash
+cd ssmif-dev-challenge
+cd frontend
+npm run dev
+```
+
 ## Running a Backtest
 1. Ensure the backend and frontend are both running
 2. Open the app: http://localhost:3000
@@ -121,6 +134,15 @@ This populates the local database (`db/dev.db`) with OHLCV data before running a
 - Fetches daily Open, High, Low, Close, Volume data for a given stock symbol
 - Saves it to the database under the `prices` table
 
+## 📸 App Preview
+<p align="center">
+  <img src="./images/preview1.png" alt="Threshold Crossover" width="50%">
+  <img src="./images/preview2.png" alt="Threshold Crossover Trade History" width="50%">
+</p>
+<p align="center">
+  <img src="./images/preview3.png" alt="Moving Average Crossover" width="50%">
+  <img src="./images/preview4.png" alt="RSI Mean Reversion" width="50%">
+</p>
 
 ## Credits
 Developed by Kevin Lui for the Stevens Student Managed Investment Fund (SSMIF) Development Challenge.
